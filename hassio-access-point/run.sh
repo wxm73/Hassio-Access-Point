@@ -118,7 +118,7 @@ if [ ${#ALLOW_MAC_ADDRESSES} -ge 1 ]; then
     done
     logger "Add to hostapd.conf: accept_mac_file=/hostapd.allow" 1
     echo "accept_mac_file=/hostapd.allow"$'\n' >> /hostapd.conf
- else set macaddr_acl to 0, and add denied MAC addresses to hostapd.deny
+ ## else set macaddr_acl to 0, and add denied MAC addresses to hostapd.deny
 elif [ ${#DENY_MAC_ADDRESSES} -ge 1 ]; then
         logger "Add to hostapd.conf: macaddr_acl=0" 1
         echo "macaddr_acl=0"$'\n' >> /hostapd.conf
@@ -130,10 +130,10 @@ elif [ ${#DENY_MAC_ADDRESSES} -ge 1 ]; then
         done
         logger "Add to hostapd.conf: accept_mac_file=/hostapd.deny" 1
         echo "deny_mac_file=/hostapd.deny"$'\n' >> /hostapd.conf
- else set macaddr_acl to 0, with blank allow and deny files
+ ## else set macaddr_acl to 0, with blank allow and deny files
 else
-    #logger "Add to hostapd.conf: macaddr_acl=0" 1
-    #echo "macaddr_acl=0"$'\n' >> /hostapd.conf
+    logger "Add to hostapd.conf: macaddr_acl=0" 1
+    echo "macaddr_acl=0"$'\n' >> /hostapd.conf
 fi
 
 
