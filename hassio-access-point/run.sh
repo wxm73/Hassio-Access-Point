@@ -89,7 +89,7 @@ for required_var in "${required_vars[@]}"; do
 done
 
 if [ ${#WPA_PASSPHRASE} -lt 8 ] ; then
-    #bashio::exit.nok "The WPA password must be at least 8 characters long!"
+    bashio::exit.nok "The WPA password must be at least 8 characters long!"
 fi
 
 # Setup hostapd.conf
@@ -118,7 +118,7 @@ if [ ${#ALLOW_MAC_ADDRESSES} -ge 1 ]; then
     done
     logger "Add to hostapd.conf: accept_mac_file=/hostapd.allow" 1
     echo "accept_mac_file=/hostapd.allow"$'\n' >> /hostapd.conf
- ## else set macaddr_acl to 0, and add denied MAC addresses to hostapd.deny
+## else set macaddr_acl to 0, and add denied MAC addresses to hostapd.deny
 elif [ ${#DENY_MAC_ADDRESSES} -ge 1 ]; then
         logger "Add to hostapd.conf: macaddr_acl=0" 1
         echo "macaddr_acl=0"$'\n' >> /hostapd.conf
@@ -130,7 +130,7 @@ elif [ ${#DENY_MAC_ADDRESSES} -ge 1 ]; then
         done
         logger "Add to hostapd.conf: accept_mac_file=/hostapd.deny" 1
         echo "deny_mac_file=/hostapd.deny"$'\n' >> /hostapd.conf
- ## else set macaddr_acl to 0, with blank allow and deny files
+## else set macaddr_acl to 0, with blank allow and deny files
 else
     logger "Add to hostapd.conf: macaddr_acl=0" 1
     echo "macaddr_acl=0"$'\n' >> /hostapd.conf
@@ -156,7 +156,7 @@ fi
 
 # Setup dnsmasq.conf if DHCP is enabled in config
 if $(bashio::config.true "dhcp"); then
-    logger "# Setup dnsmasq:" 1
+    logger "# DHCP enabled. Setup dnsmasq:" 1
     logger "Add to dnsmasq.conf: dhcp-range=$DHCP_START_ADDR,$DHCP_END_ADDR,12h" 1
         echo "dhcp-range=$DHCP_START_ADDR,$DHCP_END_ADDR,12h"$'\n' >> /dnsmasq.conf
         logger "Add to dnsmasq.conf: interface=$INTERFACE" 1
