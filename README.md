@@ -1,3 +1,6 @@
+******WORK IN PROGRESS**********
+
+
 # Hass.io Access Point
 Use your hass.io host as a WiFi access point - perfect for off-grid and security focused installations.
 
