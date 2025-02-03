@@ -198,7 +198,7 @@ if $(bashio::config.true "dhcp"); then
         done
     fi
 else
-	#logger "# DHCP not enabled. Skipping dnsmasq" 1
+	logger "# DHCP not enabled. Skipping dnsmasq" 1
 fi
 
 # Setup Client Internet Access
