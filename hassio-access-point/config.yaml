@@ -2,9 +2,9 @@
 name: Internet Sharing
 version: 2025.02.08
 slug: internet-sharing
-description: share wifi from default connection to another device
+description: share internet from default connection to another device
 arch: [armhf, armv7, aarch64, amd64, i386]
-url: https://github.com/wxm73/hassio-access-point
+url: https://github.com/wxm73/Internet-Sharing
 startup: system
 boot: auto
 host_network: true
