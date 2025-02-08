@@ -1,8 +1,8 @@
 ---
-name: Hass.io Access Point
-version: 0.5.2.1
-slug: hassio-access-point
-description: Create a WiFi access point to directly connect devices to Home Assistant
+name: Internet Sharing
+version: 2025.02.08
+slug: internet-sharing
+description: share wifi from default connection to another device
 arch: [armhf, armv7, aarch64, amd64, i386]
 url: https://github.com/wxm73/hassio-access-point
 startup: system
@@ -14,31 +14,22 @@ privileged:
   - NET_ADMIN
 init: false
 options:
-  ssid:
-  wpa_passphrase:
-  channel: 165
   address: 10.1.1.1
   netmask: 255.255.255.0
   broadcast: 10.1.1.255
-  interface: wlan0
-  hide_ssid: false
+  interface: enps20
   dhcp: false
   dhcp_start_addr: 10.1.1.5
   dhcp_end_addr: 10.1.1.25
   allow_mac_addresses: []
   deny_mac_addresses: []
   debug: 0
-  hostapd_config_override: []
   client_internet_access: false
   client_dns_override: []
   dnsmasq_config_override: []
 schema:
-  ssid: match(^.{2,32}$)
-  wpa_passphrase: password
-  channel: int(1,167)
   address: match(^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$)
   netmask: match(^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$)
-  broadcast: match(^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$)
   interface: str
   hide_ssid: bool
   dhcp: bool
@@ -49,8 +40,6 @@ schema:
   deny_mac_addresses:
     - match(^([0-9a-fA-F]{2}:){4}[0-9a-fA-F]{2})?
   debug: int(0,2)
-  hostapd_config_override:
-    - str?
   client_internet_access: bool
   client_dns_override:
     - match(^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$)
