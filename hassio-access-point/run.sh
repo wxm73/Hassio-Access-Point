@@ -21,7 +21,7 @@ logger(){
 CONFIG_PATH=/data/options.json
 
 # Convert integer configs to boolean, to avoid a breaking old configs
-declare -r bool_configs=( hide_ssid client_internet_access dhcp )
+declare -r bool_configs=( client_internet_access dhcp )
 for i in $bool_configs ; do
     if bashio::config.true $i || bashio::config.false $i ; then
         continue
@@ -32,14 +32,9 @@ for i in $bool_configs ; do
     fi
 done
 
-SSID=$(bashio::config "ssid")
-WPA_PASSPHRASE=$(bashio::config "wpa_passphrase")
-CHANNEL=$(bashio::config "channel")
 ADDRESS=$(bashio::config "address")
 NETMASK=$(bashio::config "netmask")
-BROADCAST=$(bashio::config "broadcast")
 INTERFACE=$(bashio::config "interface")
-HIDE_SSID=$(bashio::config.false "hide_ssid"; echo $?)
 DHCP=$(bashio::config.false "dhcp"; echo $?)
 DHCP_START_ADDR=$(bashio::config "dhcp_start_addr" )
 DHCP_END_ADDR=$(bashio::config "dhcp_end_addr" )
@@ -47,7 +42,6 @@ DNSMASQ_CONFIG_OVERRIDE=$(bashio::config 'dnsmasq_config_override' )
 ALLOW_MAC_ADDRESSES=$(bashio::config 'allow_mac_addresses' )
 DENY_MAC_ADDRESSES=$(bashio::config 'deny_mac_addresses' )
 DEBUG=$(bashio::config 'debug' )
-HOSTAPD_CONFIG_OVERRIDE=$(bashio::config 'hostapd_config_override' )
 CLIENT_INTERNET_ACCESS=$(bashio::config.false 'client_internet_access'; echo $?)
 CLIENT_DNS_OVERRIDE=$(bashio::config 'client_dns_override' )
 DNSMASQ_CONFIG_OVERRIDE=$(bashio::config 'dnsmasq_config_override' )
@@ -73,8 +67,6 @@ logger "Add to /etc/network/interfaces: address $ADDRESS" 1
 echo "address $ADDRESS"$'\n' >> /etc/network/interfaces
 logger "Add to /etc/network/interfaces: netmask $NETMASK" 1
 echo "netmask $NETMASK"$'\n' >> /etc/network/interfaces
-logger "Add to /etc/network/interfaces: broadcast $BROADCAST" 1
-echo "broadcast $BROADCAST"$'\n' >> /etc/network/interfaces
 
 logger "Run command: ip link set $INTERFACE up" 1
 ip link set $INTERFACE up
@@ -83,76 +75,14 @@ ip link set $INTERFACE up
 trap 'term_handler' SIGTERM
 
 # Enforces required env variables
-required_vars=(ssid wpa_passphrase channel address netmask broadcast)
+required_vars=(address netmask)
 for required_var in "${required_vars[@]}"; do
     bashio::config.require $required_var "An AP cannot be created without this information"
 done
 
-if [ ${#WPA_PASSPHRASE} -lt 8 ] ; then
-    bashio::exit.nok "The WPA password must be at least 8 characters long!"
-fi
-
-# Setup hostapd.conf
-logger "# Setup hostapd:" 1
-logger "Add to hostapd.conf: ssid=$SSID" 1
-echo "ssid=$SSID"$'\n' >> /hostapd.conf
-logger "Add to hostapd.conf: wpa_passphrase=********" 1
-echo "wpa_passphrase=$WPA_PASSPHRASE"$'\n' >> /hostapd.conf
-logger "Add to hostapd.conf: channel=$CHANNEL" 1
-echo "channel=$CHANNEL"'\n' >> /hostapd.conf
-logger "Add to hostapd.conf: ignore_broadcast_ssid=$HIDE_SSID" 1
-echo "ignore_broadcast_ssid=$HIDE_SSID"$'\n' >> /hostapd.conf
-
-### MAC address filtering
-## Allow is more restrictive, so we prioritise that and set
-## macaddr_acl to 1, and add allowed MAC addresses to hostapd.allow
-if [ ${#ALLOW_MAC_ADDRESSES} -ge 1 ]; then
-    logger "Add to hostapd.conf: macaddr_acl=1" 1
-    echo "macaddr_acl=1"$'\n' >> /hostapd.conf
-    ALLOWED=($ALLOW_MAC_ADDRESSES)
-    logger "# Setup hostapd.allow:" 1
-    logger "Allowed MAC addresses:" 0
-    for mac in "${ALLOWED[@]}"; do
-        echo "$mac"$'\n' >> /hostapd.allow
-        logger "$mac" 0
-    done
-    logger "Add to hostapd.conf: accept_mac_file=/hostapd.allow" 1
-    echo "accept_mac_file=/hostapd.allow"$'\n' >> /hostapd.conf
-## else set macaddr_acl to 0, and add denied MAC addresses to hostapd.deny
-elif [ ${#DENY_MAC_ADDRESSES} -ge 1 ]; then
-        logger "Add to hostapd.conf: macaddr_acl=0" 1
-        echo "macaddr_acl=0"$'\n' >> /hostapd.conf
-        DENIED=($DENY_MAC_ADDRESSES)
-        logger "Denied MAC addresses:" 0
-        for mac in "${DENIED[@]}"; do
-            echo "$mac"$'\n' >> /hostapd.deny
-            logger "$mac" 0
-        done
-        logger "Add to hostapd.conf: accept_mac_file=/hostapd.deny" 1
-        echo "deny_mac_file=/hostapd.deny"$'\n' >> /hostapd.conf
-## else set macaddr_acl to 0, with blank allow and deny files
-else
-    logger "Add to hostapd.conf: macaddr_acl=0" 1
-    echo "macaddr_acl=0"$'\n' >> /hostapd.conf
-fi
-
 
 # Set address for the selected interface. Not sure why this is now not being set via /etc/network/interfaces, but maybe interfaces file is no longer required...
-ifconfig $INTERFACE $ADDRESS netmask $NETMASK broadcast $BROADCAST
-
-# Add interface to hostapd.conf
-logger "Add to hostapd.conf: interface=$INTERFACE" 1
-echo "interface=$INTERFACE"$'\n' >> /hostapd.conf
-
-# Append override options to hostapd.conf
-if [ ${#HOSTAPD_CONFIG_OVERRIDE} -ge 1 ]; then
-    logger "# Custom hostapd config options:" 0
-    HOSTAPD_OVERRIDES=($HOSTAPD_CONFIG_OVERRIDE)
-    for override in "${HOSTAPD_OVERRIDES[@]}"; do
-        echo "$override"$'\n' >> /hostapd.conf
-        logger "Add to hostapd.conf: $override" 0
-    done
-fi
+ifconfig $INTERFACE $ADDRESS netmask $NETMASK
 
 # Setup dnsmasq.conf if DHCP is enabled in config
 if $(bashio::config.true "dhcp"); then
