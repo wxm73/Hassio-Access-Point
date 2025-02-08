@@ -16,7 +16,6 @@ init: false
 options:
   address: 10.1.1.1
   netmask: 255.255.255.0
-  broadcast: 10.1.1.255
   interface: enps20
   dhcp: false
   dhcp_start_addr: 10.1.1.5
