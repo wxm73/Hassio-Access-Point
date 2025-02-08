@@ -8,10 +8,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV LANG C.UTF-8
 
 RUN apk update && \
-apk add --no-cache bash iw hostapd networkmanager networkmanager-cli net-tools sudo dnsmasq iptables && \
+apk add --no-cache bash iw networkmanager networkmanager-cli net-tools sudo dnsmasq iptables && \
 rm -rf /var/cache/apk/*
 
-COPY hostapd.conf /
 COPY dnsmasq.conf /
 
 COPY run.sh /
